@@ -1,0 +1,210 @@
+{
+  "textbooks": [
+    {
+      "id": "a0000000-0000-4000-8000-000000000001",
+      "title": "HTTP 协议简明讲义",
+      "author": "示例材料",
+      "subject": "计算机网络",
+      "source_format": "markdown",
+      "original_file_name": "http-basics.md",
+      "storage_key": "seed/http-basics.md",
+      "mime_type": "text/markdown",
+      "file_size_bytes": 2048,
+      "content_hash": "seed-demo-hash-001",
+      "parser_version": "markdown-v1",
+      "source_version": 1,
+      "status": "ready",
+      "imported_at": "2026-11-03T10:00:00.000Z",
+      "archived_at": null,
+      "created_at": "2026-11-03T10:00:00.000Z"
+    }
+  ],
+  "chapters": [
+    {
+      "id": "b0000000-0000-4000-8000-000000000001",
+      "textbook_id": "a0000000-0000-4000-8000-000000000001",
+      "title": "HTTP 基础与请求方法",
+      "page_start": null,
+      "page_end": null,
+      "sort_order": 0,
+      "deleted_at": null
+    },
+    {
+      "id": "b0000000-0000-4000-8000-000000000002",
+      "textbook_id": "a0000000-0000-4000-8000-000000000001",
+      "title": "状态码与缓存",
+      "page_start": null,
+      "page_end": null,
+      "sort_order": 1,
+      "deleted_at": null
+    }
+  ],
+  "knowledgePoints": [
+    {
+      "id": "c0000000-0000-4000-8000-000000000001",
+      "chapter_id": "b0000000-0000-4000-8000-000000000001",
+      "title": "HTTP 是无状态协议",
+      "summary": "每个请求独立，服务器不保留客户端状态；通过 Cookie/Session 弥补。",
+      "content": null,
+      "sort_order": 0,
+      "deleted_at": null
+    },
+    {
+      "id": "c0000000-0000-4000-8000-000000000002",
+      "chapter_id": "b0000000-0000-4000-8000-000000000001",
+      "title": "GET 与 POST 的区别",
+      "summary": "GET 幂等、可缓存、参数在 URL；POST 非幂等、参数在请求体。",
+      "content": null,
+      "sort_order": 1,
+      "deleted_at": null
+    },
+    {
+      "id": "c0000000-0000-4000-8000-000000000003",
+      "chapter_id": "b0000000-0000-4000-8000-000000000002",
+      "title": "常见状态码含义",
+      "summary": "2xx 成功、3xx 重定向、4xx 客户端错误、5xx 服务端错误。",
+      "content": null,
+      "sort_order": 0,
+      "deleted_at": null
+    },
+    {
+      "id": "c0000000-0000-4000-8000-000000000004",
+      "chapter_id": "b0000000-0000-4000-8000-000000000002",
+      "title": "HTTP 缓存机制",
+      "summary": "Cache-Control / ETag / Last-Modified 控制缓存与协商缓存。",
+      "content": null,
+      "sort_order": 1,
+      "deleted_at": null
+    }
+  ],
+  "source_fragments": [
+    {
+      "id": "d0000000-0000-4000-8000-000000000001",
+      "textbook_id": "a0000000-0000-4000-8000-000000000001",
+      "chapter_id": "b0000000-0000-4000-8000-000000000001",
+      "fragment_index": 0,
+      "heading_path": "HTTP 基础与请求方法 > 无状态协议",
+      "paragraph_index": 0,
+      "page_start": null,
+      "page_end": null,
+      "char_start": 0,
+      "char_end": 120,
+      "locator": "HTTP 基础与请求方法 · 无状态协议 第1段",
+      "content": "HTTP 是一种无状态协议：服务器不会在两个请求之间保留任何客户端的状态信息，每个请求都是独立处理的。",
+      "content_hash": null
+    },
+    {
+      "id": "d0000000-0000-4000-8000-000000000002",
+      "textbook_id": "a0000000-0000-4000-8000-000000000001",
+      "chapter_id": "b0000000-0000-4000-8000-000000000001",
+      "fragment_index": 1,
+      "heading_path": "HTTP 基础与请求方法 > GET 与 POST",
+      "paragraph_index": 0,
+      "page_start": null,
+      "page_end": null,
+      "char_start": 120,
+      "char_end": 260,
+      "locator": "HTTP 基础与请求方法 · GET 与 POST 第1段",
+      "content": "GET 用于获取资源，是幂等且可缓存的，参数拼接在 URL 中；POST 用于提交数据，非幂等，参数放在请求体中。",
+      "content_hash": null
+    },
+    {
+      "id": "d0000000-0000-4000-8000-000000000003",
+      "textbook_id": "a0000000-0000-4000-8000-000000000001",
+      "chapter_id": "b0000000-0000-4000-8000-000000000002",
+      "fragment_index": 2,
+      "heading_path": "状态码与缓存 > 常见状态码",
+      "paragraph_index": 0,
+      "page_start": null,
+      "page_end": null,
+      "char_start": 0,
+      "char_end": 140,
+      "locator": "状态码与缓存 · 常见状态码 第1段",
+      "content": "状态码按首位分组：2xx 表示成功，3xx 表示重定向，4xx 表示客户端错误（如 404 未找到），5xx 表示服务端错误。",
+      "content_hash": null
+    },
+    {
+      "id": "d0000000-0000-4000-8000-000000000004",
+      "textbook_id": "a0000000-0000-4000-8000-000000000001",
+      "chapter_id": "b0000000-0000-4000-8000-000000000002",
+      "fragment_index": 3,
+      "heading_path": "状态码与缓存 > 缓存机制",
+      "paragraph_index": 0,
+      "page_start": null,
+      "page_end": null,
+      "char_start": 140,
+      "char_end": 300,
+      "locator": "状态码与缓存 · 缓存机制 第1段",
+      "content": "HTTP 缓存通过 Cache-Control 控制强缓存，通过 ETag 和 Last-Modified 实现协商缓存，避免重复传输未变化的资源。",
+      "content_hash": null
+    }
+  ],
+  "cards": [
+    {
+      "id": "e0000000-0000-4000-8000-000000000001",
+      "kind": "qa",
+      "front": "什么是 HTTP 无状态协议？",
+      "back": "服务器不保留客户端状态，每个请求独立处理；通过 Cookie/Session 机制来弥补。",
+      "status": "draft",
+      "content_revision": 1,
+      "content_hash": null,
+      "generation_job_id": null,
+      "reviewed_at": null,
+      "rejected_at": null,
+      "deleted_at": null,
+      "created_at": "2026-11-03T10:01:00.000Z",
+      "updated_at": "2026-11-03T10:01:00.000Z"
+    },
+    {
+      "id": "e0000000-0000-4000-8000-000000000002",
+      "kind": "qa",
+      "front": "GET 和 POST 在幂等性和参数位置上有什么区别？",
+      "back": "GET 幂等、可缓存、参数在 URL；POST 非幂等、参数在请求体。",
+      "status": "draft",
+      "content_revision": 1,
+      "content_hash": null,
+      "generation_job_id": null,
+      "reviewed_at": null,
+      "rejected_at": null,
+      "deleted_at": null,
+      "created_at": "2026-11-03T10:01:00.000Z",
+      "updated_at": "2026-11-03T10:01:00.000Z"
+    },
+    {
+      "id": "e0000000-0000-4000-8000-000000000003",
+      "kind": "qa",
+      "front": "404 状态码属于哪一类？",
+      "back": "4xx 客户端错误，表示请求的资源未找到。",
+      "status": "draft",
+      "content_revision": 1,
+      "content_hash": null,
+      "generation_job_id": null,
+      "reviewed_at": null,
+      "rejected_at": null,
+      "deleted_at": null,
+      "created_at": "2026-11-03T10:01:00.000Z",
+      "updated_at": "2026-11-03T10:01:00.000Z"
+    },
+    {
+      "id": "e0000000-0000-4000-8000-000000000004",
+      "kind": "qa",
+      "front": "强缓存和协商缓存分别由哪些 HTTP 字段控制？",
+      "back": "强缓存由 Cache-Control 控制；协商缓存由 ETag 和 Last-Modified 控制。",
+      "status": "draft",
+      "content_revision": 1,
+      "content_hash": null,
+      "generation_job_id": null,
+      "reviewed_at": null,
+      "rejected_at": null,
+      "deleted_at": null,
+      "created_at": "2026-11-03T10:01:00.000Z",
+      "updated_at": "2026-11-03T10:01:00.000Z"
+    }
+  ],
+  "card_sources": [
+    { "card_id": "e0000000-0000-4000-8000-000000000001", "source_fragment_id": "d0000000-0000-4000-8000-000000000001", "role": "source" },
+    { "card_id": "e0000000-0000-4000-8000-000000000002", "source_fragment_id": "d0000000-0000-4000-8000-000000000002", "role": "source" },
+    { "card_id": "e0000000-0000-4000-8000-000000000003", "source_fragment_id": "d0000000-0000-4000-8000-000000000003", "role": "source" },
+    { "card_id": "e0000000-0000-4000-8000-000000000004", "source_fragment_id": "d0000000-0000-4000-8000-000000000004", "role": "source" }
+  ]
+}

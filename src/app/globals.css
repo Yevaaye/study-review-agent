@@ -1,0 +1,947 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   深灰原生主题（不做亮/暗切换）
+   设计：深灰底 + 中性灰阶 + 玻璃质感卡片 + 浅灰主按钮（克制的黑白灰）
+
+   版式规则（改页面时请遵守，这是"不乱"的来源）：
+   1. 每页只有一个主视觉：一个大数字或一条主按钮，其余全部退到次要层级。
+   2. 字号只用 4 档：page-title / body / sub / micro，不临时发明第 5 种。
+   3. 同一个数字在一屏里只出现一次，出现两次就是重复。
+   4. 设备宽度 < md 时，任何指标都必须带文字标签，不允许出现裸数字。
+   ========================================================================== */
+@theme {
+  --color-bg: #17181b;
+  --color-bg-soft: #1e1f23;
+  --color-surface: rgba(255, 255, 255, 0.045);
+  --color-surface-2: rgba(255, 255, 255, 0.075);
+  --color-border: rgba(255, 255, 255, 0.10);
+  --color-fg: #eaeaec;
+  --color-muted: #9c9fa6;
+  --color-accent: #dcdfe4;
+  --color-accent-2: #b7bcc4;
+  --color-success: #6fd39a;
+  --color-danger: #ef8f8c;
+  --color-warning: #e0bd78;
+
+  --font-sans: "PingFang SC", "Microsoft YaHei", system-ui, -apple-system,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun",
+    "STSong", serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --radius-sm: 0.625rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.125rem;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(1100px 560px at 82% -12%, rgba(255, 255, 255, 0.035), transparent 62%),
+    var(--color-bg);
+  background-attachment: fixed;
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  /* 防止任何一处内容把整页顶出横向滚动 */
+  overflow-x: hidden;
+}
+
+/* ---- 玻璃质感组件 ---- */
+@layer components {
+  .glass {
+    background: var(--color-surface);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--color-border);
+  }
+
+  .card {
+    background: var(--color-surface);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+  }
+
+  /*
+   * 手机底部导航。
+   *
+   * 不能直接用 .glass：玻璃卡片只要 4.5% 白底就够「浮起来」，但导航是压在
+   * 正文上的浮层，同样的透明度会让滚过去的正文清清楚楚透出来 ——
+   * 「要坚持以稳中求进…」和「今日 复习 导入」叠在一行，整个页面像没做完。
+   * 这里改成 92% 的实底 + 更强的模糊，正文滚到下面只留一点色块感，字不再可读。
+   */
+  .nav-bar {
+    /*
+     * 96% 而不是 88%：真机有 backdrop-filter，透一点无所谓；
+     * 但一旦模糊不可用（老内核、省电模式、截图环境），
+     * 88% 的底会让正文以「灰字」形式压在导航标签上，看着像没写完。
+     * 这里按「没有模糊也能用」的底线取值。
+     */
+    background: rgba(23, 24, 27, 0.965);
+    backdrop-filter: blur(22px) saturate(140%);
+    -webkit-backdrop-filter: blur(22px) saturate(140%);
+    border-top: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow: 0 -10px 28px rgba(0, 0, 0, 0.34);
+  }
+  /* backdrop-filter 不支持时的兜底：直接不透明 */
+  @supports not (backdrop-filter: blur(1px)) {
+    .nav-bar {
+      background: var(--color-bg);
+    }
+  }
+
+  /*
+   * 评分回执（toast）。
+   *
+   * 为什么不用页面顶部的横条：手机上一整屏就是「题干 + 答案 + 四档按钮」，
+   * 用户的视线停在按钮上，回执在顶部（甚至需要往上滚才看得见）等于没出现 ——
+   * 真实反馈就是「我选了想起但费力，没看到它说下次什么时候来」。
+   * 这里固定在底栏上方，拇指区域，点完立刻能看到。
+   *
+   * 位置要避开 .nav-bar（约 59px + 安全区），否则会被底栏压住。
+   */
+  .review-toast {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(env(safe-area-inset-bottom) + 4.75rem);
+    z-index: 40;
+    width: min(calc(100vw - 2rem), 26rem);
+    /*
+     * 必须是不透明底：--color-surface 只有 4.5% 白，
+     * 用在浮层上会让下面的题干透出来，和回执文字叠在一起。
+     */
+    background: rgba(30, 31, 36, 0.975);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    padding: 0.625rem 0.875rem;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5);
+    animation: review-toast-in 160ms ease-out;
+  }
+  /* 桌面没有底栏，贴底一点更自然 */
+  @media (min-width: 768px) {
+    .review-toast {
+      bottom: 1.5rem;
+    }
+  }
+  @keyframes review-toast-in {
+    from {
+      opacity: 0;
+      transform: translate(-50%, 10px);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  }
+  /*
+   * 自动退场：回执只活 2.2s，然后淡出 + 轻微下沉。
+   * 用 forwards 保持最后一帧的透明状态，直到 React 把它从树上摘掉，
+   * 否则 400ms 的淡出结束会「闪回」一次再消失。
+   */
+  .review-toast-out {
+    animation: review-toast-out 400ms ease-in forwards;
+  }
+  @keyframes review-toast-out {
+    from {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+    to {
+      opacity: 0;
+      transform: translate(-50%, 6px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .review-toast {
+      animation: none;
+    }
+    /* 关闭动效时仍然要「消失」，只是不做位移动画 */
+    .review-toast-out {
+      animation: none;
+      opacity: 0;
+    }
+  }
+
+  /*
+   * 从复习页「去原文查依据」跳来后的常驻返回键。
+   * 全文可能很长，返回只放页头/页脚的话用户滚到中段就找不到；
+   * 固定在底栏上方，位置和复习回执一致（视觉上是同一个「拇指区」）。
+   */
+  .review-return-bar {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(env(safe-area-inset-bottom) + 4.75rem);
+    z-index: 40;
+    width: min(calc(100vw - 2rem), 26rem);
+    background: rgba(30, 31, 36, 0.975);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid color-mix(in srgb, var(--color-accent, #dcdfe4) 32%, transparent);
+    border-radius: var(--radius-lg);
+    padding: 0.75rem 1rem;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5);
+    transition: border-color 160ms ease, transform 160ms ease;
+  }
+  .review-return-bar:hover {
+    border-color: color-mix(in srgb, var(--color-accent, #dcdfe4) 62%, transparent);
+  }
+  .review-return-bar:active {
+    transform: translateX(-50%) scale(0.985);
+  }
+  /* 桌面没有底栏，贴底一点更自然 */
+  @media (min-width: 768px) {
+    .review-return-bar {
+      bottom: 1.5rem;
+    }
+  }
+
+  /* 无边框容器：用于"一块内容"而不是"一个盒子"，减少画面里的方框数量 */
+  .card-quiet {
+    background: var(--color-surface);
+    border: 1px solid transparent;
+    border-radius: var(--radius-lg);
+  }
+
+  /* --- 版式：4 档字号，页面里不要再写 text-[26px] 这类临时值 --- */
+  .page-title {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  @media (min-width: 768px) {
+    .page-title {
+      font-size: 1.875rem;
+    }
+  }
+  .page-sub {
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: var(--color-muted);
+  }
+  .micro {
+    font-size: 0.6875rem;
+    line-height: 1.5;
+    color: var(--color-muted);
+  }
+  .section-label {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  /* 大数字：等宽字形，避免数字变化时左右跳动 */
+  .metric {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  /* --- 按钮 --- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: var(--radius-md);
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.15s ease;
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  /* 这两个类经常单独使用（不带 .btn），默认是 display:inline ——
+     padding 撑不出高度，「没有到期」这类短文案还会被断成两行。统一补上。 */
+  .btn-primary,
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    gap: 0.375rem;
+    border-radius: var(--radius-md);
+    transition: all 0.15s ease;
+  }
+  .btn-primary {
+    color: #16171a;
+    background: #e6e8eb;
+    box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.6);
+  }
+  .btn-primary:hover {
+    background: #f0f2f4;
+  }
+  .btn-ghost {
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    color: var(--color-fg);
+  }
+  .btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.11);
+  }
+  /* btn-primary / btn-ghost 不带 .btn 类，disabled 态此前没有任何视觉反馈，
+     用户会以为"按钮点不动"。这里补上统一的禁用样式。 */
+  .btn-primary:disabled,
+  .btn-ghost:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  /* 小尺寸：列表行右侧的操作按钮统一用它，保证同一列宽度一致 */
+  .btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  .btn-lg {
+    padding: 0.8125rem 1.25rem;
+    font-size: 0.9375rem;
+  }
+  /* 破坏性操作按钮：红字 + 淡红底，和主按钮同一尺寸，不抢视觉但一眼能认出 */
+  .btn-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    border-radius: var(--radius-md);
+    color: var(--color-danger);
+    background: rgba(239, 143, 140, 0.14);
+    border: 1px solid rgba(239, 143, 140, 0.42);
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+  .btn-danger:hover {
+    background: rgba(239, 143, 140, 0.22);
+  }
+  .btn-danger:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /*
+   * 应用内确认弹层。
+   * z-index 要高于底栏（z-50），否则手机上弹窗会被导航压住一半。
+   * 手机贴底弹（拇指够得到），桌面居中。
+   */
+  .confirm-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 1rem;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+    background: rgba(0, 0, 0, 0.62);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+  @media (min-width: 640px) {
+    .confirm-backdrop {
+      align-items: center;
+      padding-bottom: 1rem;
+    }
+  }
+  .confirm-panel {
+    width: 100%;
+    max-width: 24rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    /* 实底：弹层下面是正文，半透明会让文字透上来 */
+    background: #22242a;
+    box-shadow: 0 24px 60px -18px rgba(0, 0, 0, 0.85);
+    padding: 1.25rem;
+  }
+
+  .input {
+    width: 100%;
+    border-radius: var(--radius-md);
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+    outline: none;
+    transition: all 0.15s ease;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    color: var(--color-fg);
+  }
+  .input:focus {
+    border-color: rgba(255, 255, 255, 0.35);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.125rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /*
+   * --- 题干 / 答案的分区 ---
+   *
+   * 问题：题干 16px、答案 14px，两者都是中性白，中间只隔 8px 空隙 —— 扫一眼
+   * 分不清哪段是「要你回答的」、哪段是「给你的」。字号差 2px 不足以建立层级。
+   *
+   * 解法：不靠继续拉大字号（答案再小就难读了），而是靠**结构与颜色**分开：
+   *   · .question-stem —— 17px、最亮、无框，独占一段，是卡片的视觉锚点；
+   *   · .answer-block  —— 15px、左侧一条竖线 + 「参考答案」小标题，像引文一样被框住；
+   *   · 页脚（来源/定位/复习记录）—— 上面一条细线切开，退回 11px。
+   * 这样即使两段文字长度相近，也能一眼看出边界。
+   */
+  .question-stem {
+    font-size: 1.0625rem; /* 17px：比答案大一档，又不至于在小屏折成 5 行 */
+    font-weight: 500;
+    line-height: 1.7;
+    color: var(--color-fg);
+  }
+  .answer-block {
+    /* 2px 竖线用近白低透明度：深灰底上刚好可见，不会变成一条刺眼的边框 */
+    border-left: 2px solid rgba(220, 223, 228, 0.26);
+    padding-left: 0.8125rem;
+  }
+  /* 区块小标题（「题目」/「参考答案」）：11px + 字距，只负责贴标签，不参与抢戏 */
+  .block-cap {
+    margin-bottom: 0.25rem;
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    letter-spacing: 0.12em;
+    color: var(--color-muted);
+    opacity: 0.75;
+  }
+
+  /*
+   * --- 信息层级（L1 正文 / L2 次要 / L3 微标注）---
+   *
+   * L1 正文：14~17px、text-fg/85 以上 —— 题干（17）、答案（15）、选项（14）。
+   * L2 次要：.micro（11px、muted）—— 来源、定位原文、行内说明、按钮旁的计数。
+   * L3 微标注：.source-note（11px、muted、无底无边）—— 只说明「这条内容从哪来的」。
+   *
+   * 硬规矩：任何提示都不允许靠**字号、底色、描边**去抢正文的注意力。
+   * 要表达「需要注意」时用**颜色**（金色/红色）而不是放大加粗。
+   */
+  .source-note {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.3rem;
+    font-size: 0.6875rem;
+    line-height: 1.5;
+    color: var(--color-muted);
+    white-space: nowrap;
+  }
+  /* 前置小圆点：让标注在长答案末尾「一眼可辨」，但权重只靠透明度，不靠字号 */
+  .source-note::before {
+    content: "";
+    align-self: center;
+    width: 0.1875rem;
+    height: 0.1875rem;
+    border-radius: 999px;
+    background: currentColor;
+    opacity: 0.45;
+  }
+  /* 金色 = 风险语义，只给「原文没给、AI 自己补的」，不给普通来源标注 */
+  .source-note--warn {
+    color: var(--color-warning);
+  }
+
+  /* --- 分段控件：替代散落一地的筛选 chip --- */
+  .seg {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+  }
+  .seg-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.3125rem 0.625rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    white-space: nowrap;
+    color: var(--color-muted);
+    transition: all 0.15s ease;
+  }
+  .seg-item:hover {
+    color: var(--color-fg);
+  }
+  /*
+   * 审核台状态标签条：加入「内容错误」后共 5 个标签，390px 窄屏下
+   * inline-flex 默认按 max-content 撑到 379px，会把整页顶出 5px 横向滚动。
+   * 这里限定宽度并允许换行 —— 比横滑更好：新分区入口始终一眼可见。
+   */
+  .seg-wrap {
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+  .seg-item[data-active="true"] {
+    background: var(--color-surface-2);
+    color: var(--color-fg);
+  }
+
+  /* 列表行：底部一条极细分隔线，比每行一个盒子安静得多 */
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .row:last-child {
+    border-bottom: 0;
+  }
+
+  /* 折叠箭头：尺寸写在样式表里，不用 h-3 w-3 之类工具类。
+     SVG 没有 width/height 时会按容器撑满，一旦工具类没生成就会变成一个巨大的 V 形。 */
+  .chev {
+    width: 0.75rem;
+    height: 0.75rem;
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+  }
+  details[open] > summary .chev {
+    transform: rotate(180deg);
+  }
+
+  .serif {
+    font-family: var(--font-serif);
+  }
+
+  /* AI 任务浮层：手写定位而不是用 bottom-[calc(...)] 工具类。
+     带 env(safe-area-inset-bottom) 的任意值在 Tailwind 里很容易整条规则不生成，
+     一旦不生成就退回文档流，浮层会跑到页面顶部盖住标题。 */
+  .job-dock {
+    position: fixed;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: calc(4.5rem + env(safe-area-inset-bottom));
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    pointer-events: none;
+  }
+  @media (min-width: 768px) {
+    .job-dock {
+      left: auto;
+      right: 1.5rem;
+      bottom: 1.5rem;
+      width: 20rem;
+    }
+  }
+
+  /* ============================ AI 对话悬浮窗 ============================
+     层级（必须遵守，改之前先看这三个数字）：
+       底部导航 50 < 悬浮按钮 55 < 任务浮层 60 < 遮罩 65 < 对话面板 70
+     导航是 fixed，弹层比它低就会被压住一半 —— 这个坑在 globals.css:314
+     已经有注释记过一次，这里不重复踩。 */
+
+  /* 悬浮按钮。
+     背景没有直接用 --color-surface-2（7.5% 白）：那是给「卡片里的块」用的，
+     浮在正文上会透出底下的字，和导航当初遇到的问题一样。这里用 88% 实底 + 模糊，
+     正文滚到下面只留一点色块感。 */
+  .ai-fab {
+    position: fixed;
+    right: 0.75rem;
+    /* 手机抬到底栏之上：底栏占位 4.5rem，按钮 3.25rem，再留 0.25rem 缝 */
+    bottom: calc(4.75rem + env(safe-area-inset-bottom));
+    z-index: 55;
+    width: 3.25rem;
+    height: 3.25rem;
+    display: grid;
+    place-items: center;
+    border-radius: 9999px;
+    background: rgba(32, 33, 39, 0.88);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--color-border);
+    color: var(--color-fg);
+    box-shadow: 0 12px 30px -12px rgba(0, 0, 0, 0.85);
+    transition: transform 0.18s ease, opacity 0.18s ease;
+  }
+  .ai-fab:active {
+    transform: scale(0.94);
+  }
+  /* 面板打开时藏起来，避免和面板的关闭按钮重复 */
+  .ai-fab[data-hidden="true"] {
+    opacity: 0;
+    pointer-events: none;
+  }
+  @media (min-width: 768px) {
+    .ai-fab {
+      right: 1.5rem;
+      bottom: 1.5rem;
+    }
+  }
+
+  /* 让位：按钮占了右下角，任务浮层不能和它重叠。
+     这两条必须放在 .job-dock 原规则之后，靠顺序覆盖同名属性。 */
+  @media (min-width: 768px) {
+    .job-dock {
+      right: 5.5rem;
+    }
+  }
+  @media (max-width: 767px) {
+    .job-dock {
+      /* 原 right 也是 0.75rem，右侧缩到 4.75rem 给按钮腾位置 */
+      right: 4.75rem;
+    }
+  }
+
+  .ai-panel-mask {
+    position: fixed;
+    inset: 0;
+    z-index: 65;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+
+  .ai-panel {
+    position: fixed;
+    z-index: 70;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-bg-soft);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.9);
+    /* 手机：底部抽屉 */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* dvh 而不是 vh：iOS 键盘弹出时 vh 是「不含键盘」的高度，面板会被顶出屏幕 */
+    max-height: 82dvh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  @media (min-width: 768px) {
+    .ai-panel {
+      left: auto;
+      right: 1.5rem;
+      bottom: 5.25rem;
+      width: 24rem;
+      height: min(32rem, 72dvh);
+      border-radius: var(--radius-lg);
+      padding-bottom: 0;
+    }
+  }
+
+  /* ---- 统一的等待进度条（AiProgress）----
+     全站只有这一份实现：任务浮层、导入页、对话窗、单卡补答案都渲染它。
+     高度/圆角/底色写死在这里，避免各处 Tailwind 类拼出四种粗细。 */
+  .ai-bar {
+    height: 4px;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+  .ai-bar > div {
+    height: 100%;
+    border-radius: 9999px;
+    transition: width 0.5s ease;
+  }
+  /* 无法预估进度时（等首字、不透明接口）：一条来回扫的窄条。
+     不要改成「假装走到 90% 然后停住」—— 那比不确定更像卡死。 */
+  .ai-bar-indeterminate > div {
+    width: 38%;
+    animation: ai-bar-slide 1.25s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
+  }
+  @keyframes ai-bar-slide {
+    0% {
+      transform: translateX(-110%);
+    }
+    100% {
+      transform: translateX(300%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ai-bar-indeterminate > div {
+      animation-duration: 2.6s;
+    }
+    .ai-bar > div {
+      transition-duration: 0.01ms;
+    }
+  }
+
+  /* --- 原文片段（导入时切好的 Markdown）---
+     片段的排版规则：正文 15px / 行高 1.75，块与块之间 8px。
+     表格单独做成横向可滚动的小容器 —— 财务/政策类材料的对比表列多，
+     直接 pre-wrap 会在手机上折成一堆竖线，撑宽只会顶破整个页面。 */
+  .frag-md {
+    font-size: 0.875rem;
+    line-height: 1.8;
+    color: var(--color-fg);
+    opacity: 0.9;
+    /* 中文没有空格可断，长英文/URL 也要能断 */
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  /* 块与块之间 12px。手机上原文多是「一句一段」，8px 会让整段看起来还是糊在一起 */
+  .frag-md > * + * {
+    margin-top: 0.875rem;
+  }
+  .frag-p {
+    /* 段落内换行由 renderInlineLines 插入 span.frag-br 控制，
+       不再依赖 pre-line（pre-line 会让显式换行与文本里的 \n 双重换行） */
+    white-space: normal;
+  }
+  /* 段落内「单换行分隔的行」之间的间距：让挤在一起的段落重新有呼吸感。
+     用 span（非 br）—— br 设 display:block 后 margin 会被 margin collapse 折叠，
+     实测 12px 只剩 5px；span 的 height 不受折叠影响。 */
+  .frag-br {
+    display: block;
+    height: 0.7rem;
+  }
+  .frag-h {
+    font-weight: 600;
+    color: var(--color-fg);
+    opacity: 1;
+    margin-top: 1rem;
+    line-height: 1.45;
+  }
+  .frag-md > .frag-h:first-child {
+    margin-top: 0;
+  }
+  .frag-h-lg {
+    font-size: 0.9375rem;
+  }
+  .frag-h-sm {
+    font-size: 0.875rem;
+    padding-left: 0.5rem;
+    border-left: 2px solid rgba(255, 255, 255, 0.22);
+  }
+  .frag-code {
+    padding: 0.05rem 0.3rem;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.09);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+  /* 列表：条目之间 8px、行高 1.7。
+     原文里的条目常是一整句话（选型口诀、追问 1/2/3 这种），
+     2px 间距会让四条挤成一段黑压压的字。 */
+  .frag-ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-left: 1.15rem;
+    list-style: disc;
+  }
+  .frag-ul li {
+    line-height: 1.7;
+    padding-left: 0.1rem;
+  }
+  .frag-ul li::marker {
+    color: rgba(255, 255, 255, 0.35);
+  }
+  /* 引用块：原文里的 `> 来源说明` 一类，用左侧细线代替尖括号。
+     块内每行独立成段，行距 8px —— 见 FragmentBody 的 QuoteLines。 */
+  .frag-quote {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-left: 0.7rem;
+    border-left: 2px solid rgba(255, 255, 255, 0.14);
+    color: var(--color-muted);
+    font-size: 0.8125rem;
+    line-height: 1.75;
+  }
+  .frag-quote .frag-ul {
+    gap: 0.35rem;
+  }
+  .frag-ol {
+    list-style: decimal;
+  }
+  .frag-hr {
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.09);
+    margin: 0.75rem 0;
+  }
+  /* 章节标签带：手机上横滑，桌面平铺 */
+  .chip-scroll {
+    display: flex;
+    gap: 0.375rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 0.25rem;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    /* 右侧留一点渐隐，暗示「还能往右滑」 */
+    mask-image: linear-gradient(to right, #000 92%, transparent);
+    -webkit-mask-image: linear-gradient(to right, #000 92%, transparent);
+  }
+  .chip-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  .chip-scroll > * {
+    flex: 0 0 auto;
+  }
+  @media (min-width: 768px) {
+    .chip-scroll {
+      flex-wrap: wrap;
+      overflow: visible;
+      mask-image: none;
+      -webkit-mask-image: none;
+    }
+  }
+  .frag-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    /* 贴边时给一点呼吸，滚动到底能看见最后一列 */
+    max-width: 100%;
+  }
+  .frag-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+  }
+  .frag-table th,
+  .frag-table td {
+    padding: 0.45rem 0.6rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    /* 每列保底宽度：列被压到 2 个汉字时，中文会竖着排成一列 */
+    min-width: 5.5rem;
+  }
+  .frag-table th:last-child,
+  .frag-table td:last-child {
+    border-right: 0;
+  }
+  .frag-table tr:last-child td {
+    border-bottom: 0;
+  }
+  .frag-table th {
+    font-weight: 500;
+    color: var(--color-muted);
+    background: rgba(255, 255, 255, 0.035);
+    white-space: nowrap;
+  }
+  /*
+   * 手机上表格改成「一行一块」的堆叠。
+   *
+   * 4 列表格压进 358px 后，题目列只剩两三个字宽，一句话折成五六行，
+   * 最右列还会被横向滚动截掉一半——比不做还乱。
+   * 堆叠后每格变成「表头 + 值」的一行，逻辑关系不变，字能正常读；
+   * 桌面继续保持真表格（并排对比更直观）。
+   */
+  @media (max-width: 767px) {
+    .frag-table-wrap {
+      border: 0;
+      border-radius: 0;
+    }
+    .frag-table {
+      min-width: 0;
+      font-size: 0.8125rem;
+    }
+    .frag-table thead {
+      display: none;
+    }
+    .frag-table tbody,
+    .frag-table tr,
+    .frag-table td {
+      display: block;
+      width: auto;
+      min-width: 0;
+    }
+    .frag-table tr {
+      padding: 0.6rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .frag-table tr:last-child {
+      border-bottom: 0;
+    }
+    .frag-table td {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.12rem 0;
+      border: 0;
+    }
+    .frag-table td::before {
+      content: attr(data-label);
+      flex: 0 0 3.25rem;
+      padding-top: 0.1rem;
+      font-size: 0.6875rem;
+      line-height: 1.6;
+      color: var(--color-muted);
+    }
+    /* 值是 flex 里唯一的可伸缩项：吃到剩余宽度，且禁止被压到 min-content
+       （压到 1 个字宽时中文会竖排成一列，就是「字竖着排」的原因） */
+    .frag-td-val {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    /* 序号列在堆叠形态下只会多一行「# 1」，直接不显示 */
+    .frag-table .frag-td-idx {
+      display: none;
+    }
+  }
+}
+
+/* 从审核台「去原文复习」跳过来时，高亮命中的原文段落（纯 CSS，无需 JS） */
+[id^="frag-"]:target,
+[id^="ch-"]:target {
+  outline: 2px solid rgba(255, 255, 255, 0.38);
+  outline-offset: 6px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 0.5rem;
+  animation: frag-flash 1.6s ease-out 1;
+}
+
+@keyframes frag-flash {
+  0% {
+    background: rgba(255, 255, 255, 0.16);
+  }
+  100% {
+    background: rgba(255, 255, 255, 0.07);
+  }
+}
+
+/* JS 主动定位（HighlightTarget 组件）：软导航不触发 :target，由组件加类实现同样效果。
+   颜色用主题的 accent 而非纯白，视觉上与 :target 一致但更醒目 */
+.flash-target {
+  outline: 2px solid color-mix(in srgb, var(--color-accent, #dcdfe4) 70%, transparent);
+  outline-offset: 6px;
+  background: color-mix(in srgb, var(--color-accent, #dcdfe4) 10%, transparent);
+  border-radius: 0.5rem;
+  transition: background 0.4s ease, outline-color 0.4s ease;
+}
+
+/* 细滚动条 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}

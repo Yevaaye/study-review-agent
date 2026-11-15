@@ -1,0 +1,17 @@
+# Vercel CLI 部署时排除的内容（不影响 .gitignore）
+# 说明：db/ 必须上传——seed.ts 静态导入了 db/seed-data.json，构建时要用。
+data/
+.next/
+node_modules/
+.vercel/
+*.log
+smoke.mjs
+smoke2.mjs
+smoke3.mjs
+smoke4.mjs
+.git/
+
+# 关键：不要把本地 .env.local 传上去。
+# 里面是本地调试值（尤其 DATA_BACKEND=local），一旦随包上传，排查线上环境变量
+# 不生效时会怀疑人生；密钥也不该出现在构建产物里。线上变量统一在控制台管理。
+.env*
