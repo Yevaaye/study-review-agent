@@ -4,9 +4,9 @@ import { AppShell } from "@/components/app-shell";
 import { RefreshOnFocus } from "@/components/refresh-button";
 
 export const metadata: Metadata = {
-  title: "学习复盘 Agent",
+  title: "自主复习台",
   description:
-    "个人间隔复习助手 —— 导入材料 → AI 生成问答卡片 → 审核 → FSRS 复习排期",
+    "把 Markdown 教材变成能长期刷的复习卡 —— 题目取自原文、可提炼知识点、按记忆规律排期",
 };
 
 /**

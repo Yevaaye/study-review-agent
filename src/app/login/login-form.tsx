@@ -38,7 +38,7 @@ export function LoginForm({ next }: { next: string }) {
   return (
     <div className="w-full max-w-sm">
       <div className="mb-8 text-center">
-        <div className="font-serif text-2xl tracking-wide text-fg">学习复盘</div>
+        <div className="font-serif text-2xl tracking-wide text-fg">自主复习台</div>
         <p className="mt-2 text-sm text-muted">输入口令后进入</p>
       </div>
 

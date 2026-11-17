@@ -1,6 +1,6 @@
 import { LoginForm } from "./login-form";
 
-export const metadata = { title: "口令 · 学习复盘" };
+export const metadata = { title: "口令 · 自主复习台" };
 
 /**
  * 登录页。

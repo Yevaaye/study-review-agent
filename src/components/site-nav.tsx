@@ -127,9 +127,9 @@ export function SideNav() {
       <div className="mb-6 px-1 lg:mb-8 lg:px-2">
         <div className="hidden lg:block">
           <div className="text-lg font-semibold tracking-tight">
-            学习复盘 <span className="text-accent">Agent</span>
+            自主<span className="text-accent">复习台</span>
           </div>
-          <div className="mt-1 text-xs text-muted">个人学习复盘 · MVP</div>
+          <div className="mt-1 text-xs text-muted">本地优先 · 原文出题</div>
         </div>
         <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-surface-2 text-sm font-semibold text-accent lg:hidden">
           复
